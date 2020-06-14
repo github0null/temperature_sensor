@@ -1,19 +1,35 @@
 #ifndef _H_DHT11
 #define _H_DHT11
 
-#include "stdint.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/* User must implement DHT11 interface in "dht11_conf.h" */
+#include "dht11_conf.h"
 
 /**
- * Interface define
+ * DHT11 interface
 */
+#ifndef DHT11_PIN_HIGH
+#error "DHT11_PIN_HIGH() must be implemented"
+#endif
 
-#include "stm32f10x.h"
-#include "BITBAND.h"
-#include "SysTick.h"
+#ifndef DHT11_PIN_LOW
+#error "DHT11_PIN_LOW() must be implemented"
+#endif
 
-#define DATA_WRITE(val) PBout(0) = (0x01U & (val))
-#define DATA_READ() PBin(0)
-#define DelayUs(us) SysTick_DelaySyncUs(us)
+#ifndef DHT11_PIN_READ
+#error "DHT11_PIN_READ() must be implemented"
+#endif
+
+#ifndef DHT11_Delay10Us
+#error "DHT11_Delay10Us() must be implemented"
+#endif
+
+#ifndef DHT11_DelayMs
+#error "DelayMs(uint16 ms) must be implemented"
+#endif
 
 //---------------------
 
@@ -23,62 +39,18 @@ typedef struct
     float temperature;
 } DHT11_Data;
 
-void DHT11_Init()
-{
-    DATA_WRITE(1);
+typedef enum {
+    DHT11_DONE,
+    DHT11_CONNECT_ERR,
+    DHT11_VERIFY_ERR
+} DHT11_ExitCode;
+
+void DHT11_Init(void);
+
+DHT11_ExitCode DHT11_Measure(DHT11_Data *dat);
+
+#ifdef __cplusplus
 }
-
-uint8_t DHT11_Measure(DHT11_Data *dat)
-{
-    int8_t buf[5];
-    int16_t i, j;
-
-    DATA_WRITE(0);
-    DelayUs(20000); // 开始信号 20 ms
-    DATA_WRITE(1);
-    DelayUs(50); // 40~120 us
-
-    if (DATA_READ() == 0)
-    {
-        while (DATA_READ() == 0) //等待 DHT11 拉高
-            ;
-
-        while (DATA_READ() == 1)
-            ;
-
-        i = 0;
-        while (i < 5)
-        {
-            j = 0;
-            while (j < 8)
-            {
-                while (DATA_READ() == 0)
-                    ;
-                DelayUs(30);
-                buf[i] <<= 1;
-                buf[i] |= DATA_READ();
-                while (DATA_READ() == 1)
-                    ;
-                j++;
-            }
-            i++;
-        }
-
-        DelayUs(60);
-
-        if (buf[4] == buf[0] + buf[1] + buf[2] + buf[3])
-        {
-            dat->temperature = buf[2];
-            dat->humidity = buf[0];
-            return 1;
-        }
-    }
-    else
-    {
-        DelayUs(1000);
-    }
-
-    return 0;
-}
+#endif
 
 #endif
