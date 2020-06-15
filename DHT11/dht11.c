@@ -7,19 +7,21 @@ void DHT11_Init()
 
 DHT11_ExitCode DHT11_Measure(DHT11_Data *dat)
 {
-    int8_t buf[5];
-    int16_t i, j;
+    uint8_t buf[5];
+    uint8_t i, j, k;
 
     DHT11_PIN_LOW();
-    DHT11_DelayMs(20); // 开始信号 20 ms
+    DHT11_DelayMs(25); // 开始信号 25 ms
     DHT11_PIN_HIGH();
 
     DHT11_Delay10Us();
     DHT11_Delay10Us();
+    DHT11_Delay10Us(); // 拉高 30 us
+
     DHT11_Delay10Us();
     DHT11_Delay10Us();
     DHT11_Delay10Us();
-    DHT11_Delay10Us(); // 40 ~ 120 us
+    DHT11_Delay10Us(); // 等待 40 us
 
     if (DHT11_PIN_READ() == 0)
     {
@@ -29,35 +31,30 @@ DHT11_ExitCode DHT11_Measure(DHT11_Data *dat)
         while (DHT11_PIN_READ() == 1)
             ;
 
-        i = 0;
-        while (i < 5)
+        for (i = 0; i < 5; i++)
         {
-            j = 0;
-            while (j < 8)
+            for (j = 0; j < 8; j++)
             {
                 while (DHT11_PIN_READ() == 0)
                     ;
 
-                DHT11_Delay10Us();
-                DHT11_Delay10Us();
-                DHT11_Delay10Us(); // 30us
+                k = 0;
+                while (DHT11_PIN_READ() == 1)
+                {
+                    DHT11_Delay10Us();
+                    k++;
+                }
 
                 buf[i] <<= 1;
-                buf[i] |= DHT11_PIN_READ();
-
-                while (DHT11_PIN_READ() == 1)
-                    ;
-                j++;
+                buf[i] |= (k > 4); // 高电平大于 40 us
             }
-            i++;
         }
 
         DHT11_Delay10Us();
         DHT11_Delay10Us();
         DHT11_Delay10Us();
         DHT11_Delay10Us();
-        DHT11_Delay10Us();
-        DHT11_Delay10Us(); // 60 us
+        DHT11_Delay10Us(); // 50 us
 
         if (buf[4] == buf[0] + buf[1] + buf[2] + buf[3])
         {
