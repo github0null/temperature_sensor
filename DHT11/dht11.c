@@ -10,18 +10,18 @@ DHT11_ExitCode DHT11_Measure(DHT11_Data *dat)
     uint8_t buf[5];
     uint8_t i, j, k;
 
-    DHT11_PIN_LOW();
-    DHT11_DelayMs(25); // 开始信号 25 ms
-    DHT11_PIN_HIGH();
+    DHT11_PIN_LOW(); // 开始信号 25 ms
+    DHT11_DelayMs(25);
 
+    DHT11_PIN_HIGH(); // 拉高 30 us
     DHT11_Delay10Us();
     DHT11_Delay10Us();
-    DHT11_Delay10Us(); // 拉高 30 us
+    DHT11_Delay10Us();
 
-    DHT11_Delay10Us();
-    DHT11_Delay10Us();
-    DHT11_Delay10Us();
     DHT11_Delay10Us(); // 等待 40 us
+    DHT11_Delay10Us();
+    DHT11_Delay10Us();
+    DHT11_Delay10Us();
 
     if (DHT11_PIN_READ() == 0)
     {
