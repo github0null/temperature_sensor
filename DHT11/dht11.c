@@ -65,10 +65,6 @@ DHT11_ExitCode DHT11_Measure(DHT11_Data *dat)
 
         return DHT11_VERIFY_ERR;
     }
-    else
-    {
-        DHT11_DelayMs(1);
-    }
 
     return DHT11_CONNECT_ERR;
 }

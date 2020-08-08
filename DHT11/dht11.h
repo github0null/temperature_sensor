@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 /* User must implement DHT11 interface in "dht11_conf.h" */
-#include "dht11_conf.h"
+#include <dht11_conf.h>
 
 /**
  * DHT11 interface
