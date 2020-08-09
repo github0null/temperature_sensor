@@ -41,11 +41,10 @@ typedef struct
 
 typedef enum {
     DHT11_DONE,
+    DHT11_TIMEOUT,
     DHT11_CONNECT_ERR,
     DHT11_VERIFY_ERR
 } DHT11_ExitCode;
-
-void DHT11_Init(void);
 
 DHT11_ExitCode DHT11_Measure(DHT11_Data *dat);
 
