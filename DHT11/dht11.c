@@ -40,7 +40,7 @@ DHT11_ExitCode DHT11_Measure(DHT11_Data *dat)
 
     if (DHT11_WaitPinLevel(PIN_LEVEL_LOW) != DHT11_DONE) // 等待 DHT11 拉低
         return DHT11_CONNECT_ERR;
-    
+
     // 开始接收数据
 
     for (i = 0; i < 5; i++)
@@ -51,10 +51,13 @@ DHT11_ExitCode DHT11_Measure(DHT11_Data *dat)
                 return DHT11_TIMEOUT;
 
             // 获得高电平时间
-            for (k = 0; DHT11_PIN_READ() == 1; k++)
+            for (k = 0; (DHT11_PIN_READ() == 1) && (k < 8); k++)
             {
                 DHT11_Delay10Us();
             }
+
+            if (k > 7) // 高电平时间超时
+                return DHT11_TIMEOUT;
 
             buf[i] <<= 1;
             buf[i] |= (k > 4); // 高电平大于 40 us
